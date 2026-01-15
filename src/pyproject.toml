@@ -1,0 +1,9 @@
+[tool.ruff]
+line-length = 100
+lint.select = ["E", "F", "W", "C", "B", "I"]
+lint.ignore = ["E501"]
+target-version = "py311"
+exclude = ["migrations", ".venv", ".coverage"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/payouts/urls.py" = ["B008"]
