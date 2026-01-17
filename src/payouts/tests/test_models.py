@@ -11,5 +11,17 @@ def test_create_payout():
     assert payout.id is not None
     assert payout.user_id is not None
     assert payout.status == Payout.Status.PENDING
-    assert payout.payout_method == Payout.PayoutMethod.BANK_CARD
-    assert payout.payout_details == {"card": "0000 1111 2222 3333"}
+    assert payout.currency == "RUB"
+    assert payout.recipient_details == {"card": "0000 1111 2222 3333"}
+
+
+@pytest.mark.django_db
+def test_payout_str_representation():
+    payout = PayoutFactory()
+
+    text = str(payout)
+
+    assert str(payout.id) in text
+    assert str(payout.amount) in text
+    assert payout.currency in text
+    assert payout.status in text

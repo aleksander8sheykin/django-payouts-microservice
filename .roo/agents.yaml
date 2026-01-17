@@ -1,0 +1,15 @@
+agents:
+  coder:
+    description: "Makes code changes only, minimal context"
+    model: gpt-5.1
+    context_mode: condensed
+    max_files: 5
+    allow_project_reload: false
+    obey_agents_md: true
+
+  architect:
+    description: "High-level architecture review and strategy"
+    model: gpt-5.2-codex
+    context_mode: full
+    allow_project_reload: true
+    obey_agents_md: true

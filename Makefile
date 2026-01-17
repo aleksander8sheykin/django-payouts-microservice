@@ -59,7 +59,7 @@ workerlogs:
 beatlogs:
 	$(COMPOSE_DEV) logs -f beat
 
-make-migrations:
+makemigrations:
 	$(COMPOSE_DEV) run --rm web python manage.py makemigrations
 	 
 migrate:

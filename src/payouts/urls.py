@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import PayoutCreateView, PayoutRetrieveView
+from .views import PayoutListCreateView, PayoutRetrieveUpdateDeleteView
 
 urlpatterns = [
-    path("", PayoutCreateView.as_view(), name="create-payout"),
-    path("<int:pk>/", PayoutRetrieveView.as_view(), name="get-payout"),
+    path("", PayoutListCreateView.as_view(), name="list-create-payouts"),
+    path("<int:pk>/", PayoutRetrieveUpdateDeleteView.as_view(), name="payout-detail"),
 ]

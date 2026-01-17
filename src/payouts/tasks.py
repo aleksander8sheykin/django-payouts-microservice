@@ -7,7 +7,7 @@ from celery.exceptions import MaxRetriesExceededError
 from django.db import transaction
 from django.utils import timezone
 
-from core.tracing import set_trace_id
+from core.tracing import ensure_trace_id, set_trace_id
 
 from .models import Payout
 from .services import PaymentGateway, TemporaryPaymentError
@@ -24,6 +24,8 @@ PROCESSING_DELAY = int(os.environ["CELERY_PROCESSING_DELAY"])
 def process_payout(self, payout_id: int, trace_id: str = None):
     if trace_id:
         set_trace_id(trace_id)
+    else:
+        ensure_trace_id()
 
     with transaction.atomic():
         payout = Payout.objects.select_for_update().get(id=payout_id)
@@ -40,8 +42,8 @@ def process_payout(self, payout_id: int, trace_id: str = None):
         gateway.send_payment(
             user_id=payout.user_id,
             amount=payout.amount,
-            payout_method=payout.payout_method,
-            payout_details=payout.payout_details,
+            currency=payout.currency,
+            recipient_details=payout.recipient_details,
         )
 
         payout.status = Payout.Status.PROCESSED
@@ -61,12 +63,10 @@ def process_payout(self, payout_id: int, trace_id: str = None):
 
 @shared_task
 def reconcile_processing_payouts():
+    ensure_trace_id()
     timeout = timezone.now() - timedelta(seconds=PROCESSING_DELAY)
 
-    stuck = Payout.objects.filter(
-        status=Payout.Status.PROCESSING,
-        processing_started_at__lt=timeout,
-    )
+    stuck = Payout.objects.filter(status=Payout.Status.PROCESSING, updated_at__lt=timeout)
 
     for payout in stuck:
         payout.status = Payout.Status.FAILED

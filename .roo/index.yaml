@@ -1,0 +1,7 @@
+collections:
+  - name: project_files
+    path: "./"
+    recursive: true
+    file_types: [".py", ".md"]
+    use_summaries: true
+    condense_before_indexing: true

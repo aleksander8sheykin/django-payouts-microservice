@@ -1,4 +1,7 @@
+from django.core.validators import MinValueValidator
 from django.db import models
+
+from .currency_choices import ISO_4217_CURRENCY_CHOICES
 
 
 class Payout(models.Model):
@@ -8,17 +11,23 @@ class Payout(models.Model):
         PROCESSED = "processed", "Processed"
         FAILED = "failed", "Failed"
 
-    class PayoutMethod(models.TextChoices):
-        BANK_CARD = "bank_card", "Bank card"
-        SBP = "sbp", "SBP"
+    user_id = models.PositiveBigIntegerField(
+        verbose_name="Ид пользователя",
+        validators=[MinValueValidator(1)],
+    )
 
-    user_id = models.BigIntegerField(verbose_name="Ид пользователя", db_index=True)
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Сумма выплаты",
+        validators=[MinValueValidator(0.01)],
+    )
 
-    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма выплаты")
+    currency = models.CharField(max_length=3, choices=ISO_4217_CURRENCY_CHOICES, verbose_name="Валюта")
 
-    payout_method = models.CharField(max_length=32, choices=PayoutMethod.choices)
+    recipient_details = models.JSONField(verbose_name="Реквизиты получателя")
 
-    payout_details = models.JSONField()
+    comment = models.TextField(blank=True, verbose_name="Комментарий")
 
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.PENDING, verbose_name="Статус заявки"
@@ -26,7 +35,15 @@ class Payout(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
     processed_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата обработки")
 
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user_id", "-created_at"], name="payout_user_created_idx"),
+        ]
+
     def __str__(self):
-        return f"Payout(id={self.id}, amount={self.amount}, status={self.status})"
+        return f"Payout(id={self.id}, amount={self.amount} {self.currency}, status={self.status})"

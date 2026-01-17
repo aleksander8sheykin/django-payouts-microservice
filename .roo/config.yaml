@@ -1,0 +1,14 @@
+# Общие настройки проекта
+context:
+  mode: condensed        # включаем context condensing
+  enable_condensing: true
+  condense_after_tokens: 8000
+  summary_max_tokens: 1200
+
+limits:
+  max_input_tokens: 12000
+  max_output_tokens: 2000
+
+index:
+  use_summaries: true
+  refresh_on_change: false

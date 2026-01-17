@@ -14,23 +14,40 @@ class TemporaryPaymentError(PaymentGatewayError):
 
 class PaymentGateway:
     def send_payment(
-        self, user_id: int, amount: Decimal, payout_method: str, payout_details: dict
+        self, user_id: int, amount: Decimal, currency: str, recipient_details: dict
     ) -> bool:
         """
         Попытка выполнить платёж.
         Возвращает True, если успешно, иначе бросает TemporaryPaymentError
         """
-        logger.info(f"Sending payment {amount} to {user_id} by {payout_method}")
+        trace_id = get_trace_id()
+        request_headers = {"X-Request-ID": trace_id}
+        logger.info(
+            "Sending payment %s %s to %s",
+            amount,
+            currency,
+            user_id,
+            extra={"trace_id": trace_id},
+        )
 
         # ------------------------------
         # TODO: здесь реальный вызов внешнего сервиса
-        # response = requests.post(...), grpc_client.send(...)
+        # response = requests.post(..., headers=request_headers), grpc_client.send(...)
         result = False
         # ------------------------------
 
         if result:
-            logger.info(f"Payment to {user_id} by {payout_method} succeeded")
+            logger.info(
+                "Payment to %s succeeded",
+                user_id,
+                extra={"trace_id": get_trace_id()},
+            )
             return True
         else:
-            logger.warning(f"Payment to {user_id} by {payout_method} failed temporarily")
+            logger.warning(
+                "Payment to %s failed temporarily",
+                user_id,
+                extra={"trace_id": get_trace_id()},
+            )
             raise TemporaryPaymentError("Payment service temporarily unavailable")
+from core.tracing import get_trace_id
