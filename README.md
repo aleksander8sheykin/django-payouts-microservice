@@ -43,6 +43,7 @@ http://localhost:8080/api/schema/ - Swagger документация
 
 Базовый URL: `http://localhost:8000`
 
+
 ### Проверка здоровья
 
 `GET /healthz/`
@@ -57,41 +58,17 @@ curl http://localhost:8000/healthz/
 {"status": "ok"}
 ```
 
-### Получить список заявок
 
-`GET /api/payouts/`
+### Схема OpenAPI
 
-Ответ — пагинированный список (по умолчанию до 100 записей на страницу).
-
-**Параметры запроса**
-- `user_id` (обязательный) — идентификатор пользователя. Без него список пуст.
-- `page` — номер страницы (по умолчанию `1`).
+`GET /api/schema/`
 
 **Пример запроса**
 ```bash
-curl "http://localhost:8000/api/payouts/?user_id=123&page=2"
+curl http://localhost:8080/api/schema/
 ```
 
-**Пример ответа**
-```json
-{
-  "count": 120,
-  "next": "http://localhost:8000/api/payouts/?user_id=123&page=3",
-  "previous": "http://localhost:8000/api/payouts/?user_id=123&page=1",
-  "results": [
-    {
-      "id": 101,
-      "user_id": 123,
-      "amount": 100.5,
-      "currency": "RUB",
-      "status": "pending",
-      "created_at": "2026-01-14T12:00:00Z",
-      "updated_at": "2026-01-14T12:05:00Z",
-      "processed_at": null
-    }
-  ]
-}
-```
+> Важно! Из ответов сервиса убраны чувствительные данные - recipient_details и comment
 
 ### Создать заявку
 
@@ -118,8 +95,6 @@ curl -X POST http://localhost:8000/api/payouts/ \
   "user_id": 123,
   "amount": 100.5,
   "currency": "RUB",
-  "recipient_details": {"card": "0000 1111 2222 3333"},
-  "comment": "Оплата бонуса",
   "status": "pending",
   "created_at": "2026-01-14T12:00:00Z",
   "updated_at": "2026-01-14T12:00:00Z",
@@ -172,8 +147,6 @@ curl -X PATCH http://localhost:8000/api/payouts/1/ \
   "user_id": 123,
   "amount": 100.5,
   "currency": "RUB",
-  "recipient_details": {"card": "0000 1111 2222 3333"},
-  "comment": "Оплата бонуса",
   "status": "processed",
   "created_at": "2026-01-14T12:00:00Z",
   "updated_at": "2026-01-14T12:10:00Z",
@@ -195,14 +168,42 @@ curl -X DELETE http://localhost:8000/api/payouts/1/
 HTTP/1.1 204 No Content
 ```
 
-### Схема OpenAPI
+### Получить список заявок
 
-`GET /api/schema/`
+`GET /api/payouts/`
+
+Ответ — пагинированный список (по умолчанию до 100 записей на страницу).
+
+**Параметры запроса**
+- `user_id` (обязательный) — идентификатор пользователя. Без него список пуст.
+- `page` — номер страницы (по умолчанию `1`).
 
 **Пример запроса**
 ```bash
-curl http://localhost:8080/api/schema/
+curl "http://localhost:8000/api/payouts/?user_id=123&page=2"
 ```
+
+**Пример ответа**
+```json
+{
+  "count": 120,
+  "next": "http://localhost:8000/api/payouts/?user_id=123&page=3",
+  "previous": "http://localhost:8000/api/payouts/?user_id=123&page=1",
+  "results": [
+    {
+      "id": 101,
+      "user_id": 123,
+      "amount": 100.5,
+      "currency": "RUB",
+      "status": "pending",
+      "created_at": "2026-01-14T12:00:00Z",
+      "updated_at": "2026-01-14T12:05:00Z",
+      "processed_at": null
+    }
+  ]
+}
+```
+
 
 ## Прод‑деплой в Kubernetes (описание)
 
