@@ -207,8 +207,8 @@ curl http://localhost:8080/api/schema/
 ## Прод‑деплой в Kubernetes (описание)
 
 ### Предпосылки
-- Контейнерный образ собирается из [`Dockerfile`](Dockerfile:1) и использует переменные окружения из [`.env.example`](.env.example:1). В проде значения должны храниться в Secret/ConfigMap.
-- Django читает настройки из переменных окружения, см. [`src/core/settings/base.py`](src/core/settings/base.py:1).
+- Контейнерный образ собирается из [`Dockerfile`](Dockerfile) и использует переменные окружения из [`.env.example`](.env.example). В проде значения должны храниться в Secret/ConfigMap.
+- Django читает настройки из переменных окружения, см. [`src/core/settings/base.py`](src/core/settings/base.py).
 
 ### Состав сервисов и ресурсов
 - **web**: Deployment с Gunicorn, контейнер из образа приложения. Рекомендуемая команда: `gunicorn core.wsgi:application --bind 0.0.0.0:8000`.
@@ -221,7 +221,7 @@ curl http://localhost:8080/api/schema/
 
 ### Минимальные шаги (примерный порядок)
 1. Собрать и опубликовать образ: `make build-prod TAG=...` и `make push-prod TAG=...` (или через CI/CD).
-2. Создать namespace, Secret и ConfigMap для всех переменных из [`.env.example`](.env.example:1).
+2. Создать namespace, Secret и ConfigMap для всех переменных из [`.env.example`](.env.example).
 3. Применить манифесты БД и Redis (или подключить управляемые сервисы).
 4. Применить Deployment для **web**, **worker**, **beat**, Service для web и Ingress с TLS.
 5. Выполнить миграции как Job: `python manage.py migrate`.
@@ -237,7 +237,7 @@ curl http://localhost:8080/api/schema/
 - Использовать `kubectl rollout status` для контроля и `kubectl rollout undo` для отката Deployment.
 
 ### Логи, мониторинг и бэкапы
-- Логи в stdout (уже настроено в [`src/core/settings/base.py`](src/core/settings/base.py:1)); собирать через Loki/ELK.
+- Логи в stdout (уже настроено в [`src/core/settings/base.py`](src/core/settings/base.py)); собирать через Loki/ELK.
 - Метрики: Prometheus + Grafana (Gunicorn/Django и Celery).
 - Бэкапы PostgreSQL: регулярные снапшоты/pg_dump.
 
